@@ -19,7 +19,9 @@ import {
   ChevronRight,
   Loader2,
   DollarSign,
-  PieChart as PieIcon
+  PieChart as PieIcon,
+  Download,
+  Filter
 } from 'lucide-react';
 
 /**
@@ -40,6 +42,8 @@ const MOCK_TRANSACTIONS = [
   { id: 3, date: '2023-10-23', label: 'Uber Ride', amount: -24.90, type: 'expense', category: 'Transport', status: 'matched' },
   { id: 4, date: '2023-10-22', label: 'Apple Store', amount: -1499.00, type: 'expense', category: 'Matériel', status: 'pending' },
   { id: 5, date: '2023-10-20', label: 'Stripe Payout', amount: 890.00, type: 'income', category: 'Vente', status: 'matched' },
+  { id: 6, date: '2023-10-18', label: 'Restaurant Le Petit Coin', amount: -45.00, type: 'expense', category: 'Repas', status: 'processing' },
+  { id: 7, date: '2023-10-15', label: 'Adobe Creative Cloud', amount: -65.00, type: 'expense', category: 'Logiciel', status: 'matched' },
 ];
 
 // Composant Graphique Simple (SVG)
@@ -429,7 +433,102 @@ const AIAssistant = () => {
   );
 };
 
-// 4. PRICING & SETTINGS
+// 4. TRANSACTIONS PAGE (FULL IMPLEMENTATION)
+const Transactions = () => {
+  return (
+    <div className="space-y-6 animate-fadeIn">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Historique des transactions</h1>
+          <p className="text-slate-500">Gérez vos revenus et dépenses en détail</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="secondary"><Download size={16} /> Exporter CSV</Button>
+        </div>
+      </div>
+
+      <Card>
+        {/* Filters Bar */}
+        <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50/50">
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="Rechercher une transaction..." 
+              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+          <div className="flex gap-2 w-full md:w-auto">
+            <button className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">
+              <Filter size={16} /> Filtres
+            </button>
+            <select className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 focus:outline-none">
+              <option>Tout voir</option>
+              <option>Recettes</option>
+              <option>Dépenses</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm text-slate-600">
+            <thead className="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200">
+              <tr>
+                <th className="px-6 py-4">Date</th>
+                <th className="px-6 py-4">Description</th>
+                <th className="px-6 py-4">Catégorie</th>
+                <th className="px-6 py-4 text-right">Montant</th>
+                <th className="px-6 py-4 text-right">Statut</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {MOCK_TRANSACTIONS.map((tx) => (
+                <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">{tx.date}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                        tx.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-600'
+                      }`}>
+                        {tx.type === 'income' ? <TrendingUp size={14} /> : <Receipt size={14} />}
+                      </div>
+                      <span className="font-medium text-slate-900">{tx.label}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="px-2 py-1 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">
+                      {tx.category}
+                    </span>
+                  </td>
+                  <td className={`px-6 py-4 text-right font-bold ${
+                    tx.type === 'income' ? 'text-green-600' : 'text-slate-900'
+                  }`}>
+                    {tx.type === 'income' ? '+' : ''}{tx.amount.toFixed(2)} €
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <Badge status={tx.status} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Pagination Footer */}
+        <div className="p-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
+          <span>Affichage 1-{MOCK_TRANSACTIONS.length} sur {MOCK_TRANSACTIONS.length}</span>
+          <div className="flex gap-1">
+            <button className="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50" disabled>Précédent</button>
+            <button className="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50" disabled>Suivant</button>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+// 5. PRICING & SETTINGS
 const Pricing = () => {
   const plans = [
     { name: 'Starter', price: '19', target: 'Micro-entrepreneurs', features: ['Gestion factures illimitée', 'Rapprochement bancaire (1 banque)', 'Dashboard simple', 'Support Email'], active: false },
@@ -514,13 +613,7 @@ const App = () => {
       case 'dashboard': return <Dashboard />;
       case 'scan': return <SmartScan />;
       case 'assistant': return <AIAssistant />;
-      case 'transactions': return (
-        <div className="text-center py-20">
-          <Receipt size={64} className="mx-auto text-slate-200 mb-4" />
-          <h2 className="text-xl font-bold text-slate-700">Module Transactions</h2>
-          <p className="text-slate-500">Liste complète avec filtres (Placeholder)</p>
-        </div>
-      );
+      case 'transactions': return <Transactions />; // MODIFIÉ ICI: Utilise le nouveau composant Transactions
       case 'settings': return <Pricing />;
       default: return <Dashboard />;
     }
