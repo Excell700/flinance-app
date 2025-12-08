@@ -23,6 +23,7 @@ import {
   Download,
   Filter
 } from 'lucide-react';
+import { Check, X, Star, Zap, Shield } from 'lucide-react';
 const STRIPE_LINKS = {
   starter: "https://buy.stripe.com/test_7sYbJ19b79JOd1Mba8bo400",
   pro: "#", // Lien exemple pour les autres plans
