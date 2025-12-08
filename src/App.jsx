@@ -23,8 +23,171 @@ import {
   Download,
   Filter
 } from 'lucide-react';
+const STRIPE_LINKS = {
+  starter: "https://buy.stripe.com/test_7sYbJ19b79JOd1Mba8bo400",
+  pro: "#", // Lien exemple pour les autres plans
+  enterprise: "#"
+};
 
-/**
+const PricingPage = () => {
+  const plans = [
+    {
+      name: "Starter",
+      price: "29€",
+      period: "/mois",
+      description: "Parfait pour commencer vos projets personnels.",
+      features: [
+        { name: "5 Projets", included: true },
+        { name: "Support par email", included: true },
+        { name: "Analyses de base", included: true },
+        { name: "Domaine personnalisé", included: false },
+        { name: "Support 24/7", included: false },
+      ],
+      link: STRIPE_LINKS.starter, // Utilisation de votre lien Stripe
+      buttonText: "Commencer",
+      popular: false,
+      icon: <Star className="w-6 h-6 text-blue-500" />
+    },
+    {
+      name: "Pro",
+      price: "99€",
+      period: "/mois",
+      description: "Pour les équipes et les entreprises en croissance.",
+      features: [
+        { name: "Projets illimités", included: true },
+        { name: "Support prioritaire", included: true },
+        { name: "Analyses avancées", included: true },
+        { name: "Domaine personnalisé", included: true },
+        { name: "Support 24/7", included: false },
+      ],
+      link: STRIPE_LINKS.pro,
+      buttonText: "Passer au Pro",
+      popular: true,
+      icon: <Zap className="w-6 h-6 text-yellow-500" />
+    },
+    {
+      name: "Entreprise",
+      price: "Sur Devis",
+      period: "",
+      description: "Solutions sur mesure pour les grandes structures.",
+      features: [
+        { name: "Tout illimité", included: true },
+        { name: "Support dédié", included: true },
+        { name: "Analyses personnalisées", included: true },
+        { name: "SLA garanti", included: true },
+        { name: "Déploiement sur site", included: true },
+      ],
+      link: STRIPE_LINKS.enterprise,
+      buttonText: "Contactez-nous",
+      popular: false,
+      icon: <Shield className="w-6 h-6 text-green-500" />
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* En-tête */}
+        <div className="text-center mb-16">
+          <h2 className="text-base font-semibold text-blue-600 tracking-wide uppercase">Tarification</h2>
+          <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+            Des plans adaptés à vos besoins
+          </p>
+          <p className="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
+            Choisissez l'offre qui correspond le mieux à votre stade de développement. Changez de plan à tout moment.
+          </p>
+        </div>
+
+        {/* Grille des prix */}
+        <div className="grid gap-8 lg:grid-cols-3 lg:gap-8 items-start">
+          {plans.map((plan) => (
+            <div 
+              key={plan.name}
+              className={`relative bg-white rounded-2xl shadow-xl flex flex-col justify-between transition-transform duration-300 hover:-translate-y-2 ${plan.popular ? 'border-2 border-blue-500 ring-4 ring-blue-500/10 z-10 scale-105 lg:scale-110' : 'border border-gray-200'}`}
+            >
+              {plan.popular && (
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-bold uppercase tracking-wide shadow-md">
+                  Plus Populaire
+                </div>
+              )}
+
+              <div className="p-8">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
+                  <div className="p-2 bg-gray-50 rounded-lg">
+                    {plan.icon}
+                  </div>
+                </div>
+                
+                <p className="mt-4 text-sm text-gray-500 h-10">
+                  {plan.description}
+                </p>
+
+                <div className="mt-6 flex items-baseline">
+                  <span className="text-4xl font-extrabold text-gray-900 tracking-tight">
+                    {plan.price}
+                  </span>
+                  <span className="ml-1 text-xl font-medium text-gray-500">
+                    {plan.period}
+                  </span>
+                </div>
+
+                {/* Liste des fonctionnalités */}
+                <ul className="mt-8 space-y-4">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-start">
+                      <div className="flex-shrink-0">
+                        {feature.included ? (
+                          <Check className="h-5 w-5 text-green-500" aria-hidden="true" />
+                        ) : (
+                          <X className="h-5 w-5 text-gray-300" aria-hidden="true" />
+                        )}
+                      </div>
+                      <p className={`ml-3 text-sm ${feature.included ? 'text-gray-700' : 'text-gray-400'}`}>
+                        {feature.name}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Bouton d'action */}
+              <div className="p-8 bg-gray-50 rounded-b-2xl border-t border-gray-100">
+                <a
+                  href={plan.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`block w-full text-center px-6 py-3 rounded-xl shadow-sm text-base font-medium transition-colors duration-200 
+                    ${plan.popular 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-50'
+                    }`}
+                >
+                  {plan.buttonText}
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Section FAQ ou confiance */}
+        <div className="mt-16 border-t border-gray-200 pt-10">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 text-center">
+             {['Paiement Sécurisé', 'Annulation Facile', 'Garantie 30 jours', 'Support Expert'].map((item) => (
+               <div key={item} className="text-sm font-medium text-gray-500 flex items-center justify-center gap-2">
+                 <Check className="w-4 h-4 text-green-500" /> {item}
+               </div>
+             ))}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+export default PricingPage;/**
  * MOCK DATA & UTILS
  * Simulation des données backend et des services IA
  */
