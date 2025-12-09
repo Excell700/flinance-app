@@ -12,7 +12,7 @@ import {
   TrendingDown, 
   Search,
   Menu,
-  X,
+  X as XIcon, // Renommé pour éviter conflit avec le X du pricing
   Bot,
   FileText,
   LogOut,
@@ -21,15 +21,22 @@ import {
   DollarSign,
   PieChart as PieIcon,
   Download,
-  Filter
+  Filter,
+  Check, 
+  X, 
+  Star, 
+  Zap, 
+  Shield 
 } from 'lucide-react';
-import { Check, X, Star, Zap, Shield } from 'lucide-react';
+
+// --- CONFIGURATION STRIPE ---
 const STRIPE_LINKS = {
   starter: "https://buy.stripe.com/test_7sYbJ19b79JOd1Mba8bo400",
-  pro: "#", // Lien exemple pour les autres plans
+  pro: "#", 
   enterprise: "#"
 };
 
+// --- COMPOSANT PRICING (Nouvelle Version) ---
 const PricingPage = () => {
   const plans = [
     {
@@ -44,7 +51,7 @@ const PricingPage = () => {
         { name: "Domaine personnalisé", included: false },
         { name: "Support 24/7", included: false },
       ],
-      link: STRIPE_LINKS.starter, // Utilisation de votre lien Stripe
+      link: STRIPE_LINKS.starter,
       buttonText: "Commencer",
       popular: false,
       icon: <Star className="w-6 h-6 text-blue-500" />
@@ -86,21 +93,18 @@ const PricingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="bg-gray-50 py-6 sm:px-6 lg:px-8 font-sans animate-fadeIn">
       <div className="max-w-7xl mx-auto">
-        
-        {/* En-tête */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h2 className="text-base font-semibold text-blue-600 tracking-wide uppercase">Tarification</h2>
           <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
             Des plans adaptés à vos besoins
           </p>
           <p className="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
-            Choisissez l'offre qui correspond le mieux à votre stade de développement. Changez de plan à tout moment.
+            Choisissez l'offre qui correspond le mieux à votre stade de développement.
           </p>
         </div>
 
-        {/* Grille des prix */}
         <div className="grid gap-8 lg:grid-cols-3 lg:gap-8 items-start">
           {plans.map((plan) => (
             <div 
@@ -134,15 +138,14 @@ const PricingPage = () => {
                   </span>
                 </div>
 
-                {/* Liste des fonctionnalités */}
                 <ul className="mt-8 space-y-4">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
                       <div className="flex-shrink-0">
                         {feature.included ? (
-                          <Check className="h-5 w-5 text-green-500" aria-hidden="true" />
+                          <Check className="h-5 w-5 text-green-500" />
                         ) : (
-                          <X className="h-5 w-5 text-gray-300" aria-hidden="true" />
+                          <X className="h-5 w-5 text-gray-300" />
                         )}
                       </div>
                       <p className={`ml-3 text-sm ${feature.included ? 'text-gray-700' : 'text-gray-400'}`}>
@@ -153,7 +156,6 @@ const PricingPage = () => {
                 </ul>
               </div>
 
-              {/* Bouton d'action */}
               <div className="p-8 bg-gray-50 rounded-b-2xl border-t border-gray-100">
                 <a
                   href={plan.link}
@@ -171,9 +173,9 @@ const PricingPage = () => {
             </div>
           ))}
         </div>
-
+        
         {/* Section FAQ ou confiance */}
-        <div className="mt-16 border-t border-gray-200 pt-10">
+        <div className="mt-16 border-t border-gray-200 pt-10 pb-10">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4 text-center">
              {['Paiement Sécurisé', 'Annulation Facile', 'Garantie 30 jours', 'Support Expert'].map((item) => (
                <div key={item} className="text-sm font-medium text-gray-500 flex items-center justify-center gap-2">
@@ -182,17 +184,12 @@ const PricingPage = () => {
              ))}
           </div>
         </div>
-
       </div>
     </div>
   );
 };
 
-export default PricingPage;/**
- * MOCK DATA & UTILS
- * Simulation des données backend et des services IA
- */
-
+// --- MOCK DATA & UTILS ---
 const MOCK_USER = {
   name: "Alexandre Dumas",
   company: "TechFlow Solutions",
@@ -210,7 +207,6 @@ const MOCK_TRANSACTIONS = [
   { id: 7, date: '2023-10-15', label: 'Adobe Creative Cloud', amount: -65.00, type: 'expense', category: 'Logiciel', status: 'matched' },
 ];
 
-// Composant Graphique Simple (SVG)
 const RevenueChart = () => (
   <div className="w-full h-48 flex items-end justify-between space-x-2 px-2">
     {[35, 45, 30, 60, 55, 75, 80, 65, 50, 70, 90, 85].map((h, i) => (
@@ -219,7 +215,6 @@ const RevenueChart = () => (
           style={{ height: `${h}%` }} 
           className="absolute bottom-0 w-full bg-indigo-500 rounded-t-lg group-hover:bg-indigo-600 transition-all"
         ></div>
-        {/* Tooltip simple */}
         <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded">
           {h * 100}€
         </div>
@@ -228,9 +223,7 @@ const RevenueChart = () => (
   </div>
 );
 
-/**
- * COMPOSANTS UI ATOMIQUES
- */
+// --- COMPOSANTS UI ATOMIQUES ---
 
 const Card = ({ children, className = "" }) => (
   <div className={`bg-white rounded-xl border border-slate-100 shadow-sm ${className}`}>
@@ -275,9 +268,7 @@ const Badge = ({ status }) => {
   );
 };
 
-/**
- * MODULES FONCTIONNELS
- */
+// --- MODULES FONCTIONNELS ---
 
 // 1. DASHBOARD
 const Dashboard = () => {
@@ -294,7 +285,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: "Chiffre d'affaires", val: "12,450.00 €", trend: "+12%", color: "text-indigo-600", icon: TrendingUp },
@@ -322,9 +312,7 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Chart Section */}
         <Card className="lg:col-span-2 p-6">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-bold text-slate-800">Flux de trésorerie</h3>
@@ -344,7 +332,6 @@ const Dashboard = () => {
           </div>
         </Card>
 
-        {/* Recent Transactions */}
         <Card className="p-0 overflow-hidden">
           <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
             <h3 className="font-bold text-slate-800 text-sm">Dernières opérations</h3>
@@ -385,7 +372,6 @@ const SmartScan = () => {
 
   const handleSimulateScan = () => {
     setIsProcessing(true);
-    // Simulation délai IA
     setTimeout(() => {
       setIsProcessing(false);
       setScannedData({
@@ -407,7 +393,6 @@ const SmartScan = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Drop Zone */}
         <div 
           className={`border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center text-center transition-all cursor-pointer h-80
             ${isDragging ? 'border-indigo-500 bg-indigo-50' : 'border-slate-300 hover:border-indigo-400 hover:bg-slate-50'}`}
@@ -434,7 +419,6 @@ const SmartScan = () => {
           )}
         </div>
 
-        {/* Results */}
         <Card className="h-80 p-6 relative overflow-hidden flex flex-col">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
           <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
@@ -480,371 +464,4 @@ const SmartScan = () => {
             </div>
           ) : (
              <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
-               <Receipt size={48} className="mb-4 opacity-20" />
-               <p>Aucune donnée à afficher</p>
-               <p className="text-sm">Scannez un document pour voir la magie opérer.</p>
-             </div>
-          )}
-        </Card>
-      </div>
-    </div>
-  );
-};
-
-// 3. AI ASSISTANT (CHAT)
-const AIAssistant = () => {
-  const [messages, setMessages] = useState([
-    { id: 1, role: 'system', text: 'Bonjour ! Je suis FlinanceBot. Je peux analyser vos finances ou répondre à des questions comptables. Comment puis-je vous aider ?' }
-  ]);
-  const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const chatEndRef = useRef(null);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const handleSend = () => {
-    if (!input.trim()) return;
-    
-    const userMsg = { id: Date.now(), role: 'user', text: input };
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
-    setIsTyping(true);
-
-    // Simulation réponse IA
-    setTimeout(() => {
-      let responseText = "Je ne suis pas sûr de comprendre. Pouvez-vous reformuler ?";
-      
-      const lowerInput = userMsg.text.toLowerCase();
-      if (lowerInput.includes('bénéfice') || lowerInput.includes('combien')) {
-        responseText = "Sur la base de vos transactions d'octobre, votre bénéfice net est de **8,219.50 €**. C'est une augmentation de 15% par rapport à septembre. Excellent travail ! 🚀";
-      } else if (lowerInput.includes('impôt') || lowerInput.includes('tva')) {
-        responseText = "Pour le régime micro-entrepreneur, vous devez déclarer votre CA à l'URSSAF avant le 30 du mois. Votre TVA collectée ce mois-ci est estimée à **1,450 €**. Voulez-vous que je prépare le formulaire ?";
-      } else if (lowerInput.includes('dépense') || lowerInput.includes('apple')) {
-        responseText = "J'ai trouvé une dépense importante chez 'Apple Store' de 1,499.00 € le 22/10. S'agit-il d'un achat de matériel amortissable sur plusieurs années ?";
-      }
-
-      setMessages(prev => [...prev, { id: Date.now() + 1, role: 'system', text: responseText }]);
-      setIsTyping(false);
-    }, 1500);
-  };
-
-  return (
-    <div className="h-[calc(100vh-140px)] flex flex-col animate-fadeIn">
-      <div className="mb-4">
-        <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <Bot className="text-indigo-600" /> Flinance Assistant
-        </h2>
-        <p className="text-slate-500">Votre assistant virtuel disponible 24/7.</p>
-      </div>
-
-      <Card className="flex-1 flex flex-col overflow-hidden shadow-lg border-indigo-100">
-        {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[80%] p-3 rounded-xl text-sm leading-relaxed ${
-                msg.role === 'user' 
-                  ? 'bg-indigo-600 text-white rounded-br-none' 
-                  : 'bg-white text-slate-700 border border-slate-200 rounded-bl-none shadow-sm'
-              }`}>
-                {msg.text}
-              </div>
-            </div>
-          ))}
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="bg-white border border-slate-200 p-3 rounded-xl rounded-bl-none shadow-sm flex items-center gap-1">
-                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
-                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-75"></span>
-                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-150"></span>
-              </div>
-            </div>
-          )}
-          <div ref={chatEndRef} />
-        </div>
-
-        {/* Input Area */}
-        <div className="p-4 bg-white border-t border-slate-100">
-          <div className="flex gap-2">
-            <input 
-              type="text" 
-              className="flex-1 border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-              placeholder="Posez une question sur vos finances..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            />
-            <Button onClick={handleSend} disabled={!input.trim()}>
-              <MessageSquare size={18} />
-            </Button>
-          </div>
-          <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
-            {["Quel est mon bénéfice ?", "Dépenses Apple", "Déclaration TVA"].map(suggestion => (
-              <button 
-                key={suggestion}
-                onClick={() => { setInput(suggestion); }}
-                className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1 rounded-full whitespace-nowrap transition-colors"
-              >
-                {suggestion}
-              </button>
-            ))}
-          </div>
-        </div>
-      </Card>
-    </div>
-  );
-};
-
-// 4. TRANSACTIONS PAGE (FULL IMPLEMENTATION)
-const Transactions = () => {
-  return (
-    <div className="space-y-6 animate-fadeIn">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Historique des transactions</h1>
-          <p className="text-slate-500">Gérez vos revenus et dépenses en détail</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="secondary"><Download size={16} /> Exporter CSV</Button>
-        </div>
-      </div>
-
-      <Card>
-        {/* Filters Bar */}
-        <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50/50">
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="Rechercher une transaction..." 
-              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-          <div className="flex gap-2 w-full md:w-auto">
-            <button className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">
-              <Filter size={16} /> Filtres
-            </button>
-            <select className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 focus:outline-none">
-              <option>Tout voir</option>
-              <option>Recettes</option>
-              <option>Dépenses</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-600">
-            <thead className="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-4">Date</th>
-                <th className="px-6 py-4">Description</th>
-                <th className="px-6 py-4">Catégorie</th>
-                <th className="px-6 py-4 text-right">Montant</th>
-                <th className="px-6 py-4 text-right">Statut</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {MOCK_TRANSACTIONS.map((tx) => (
-                <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">{tx.date}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                        tx.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-600'
-                      }`}>
-                        {tx.type === 'income' ? <TrendingUp size={14} /> : <Receipt size={14} />}
-                      </div>
-                      <span className="font-medium text-slate-900">{tx.label}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="px-2 py-1 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">
-                      {tx.category}
-                    </span>
-                  </td>
-                  <td className={`px-6 py-4 text-right font-bold ${
-                    tx.type === 'income' ? 'text-green-600' : 'text-slate-900'
-                  }`}>
-                    {tx.type === 'income' ? '+' : ''}{tx.amount.toFixed(2)} €
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <Badge status={tx.status} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        {/* Pagination Footer */}
-        <div className="p-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
-          <span>Affichage 1-{MOCK_TRANSACTIONS.length} sur {MOCK_TRANSACTIONS.length}</span>
-          <div className="flex gap-1">
-            <button className="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50" disabled>Précédent</button>
-            <button className="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50" disabled>Suivant</button>
-          </div>
-        </div>
-      </Card>
-    </div>
-  );
-};
-
-// 5. PRICING & SETTINGS
-const Pricing = () => {
-  const plans = [
-    { name: 'Starter', price: '19', target: 'Micro-entrepreneurs', features: ['Gestion factures illimitée', 'Rapprochement bancaire (1 banque)', 'Dashboard simple', 'Support Email'], active: false },
-    { name: 'Pro', price: '49', target: 'PME en croissance', features: ['Tout du Starter', 'Assistant IA Illimité', 'Rapprochement multi-banques', 'Déclaration TVA auto', 'Support Chat'], active: true, recommended: true },
-    { name: 'Business', price: '149', target: 'PME structurées', features: ['Tout du Pro', 'Accès multi-utilisateurs', 'Analytique avancée', 'Export comptable API', 'Manager dédié'], active: false },
-  ];
-
-  return (
-    <div className="animate-fadeIn max-w-5xl mx-auto py-8">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-slate-900 mb-4">Choisissez votre plan</h2>
-        <p className="text-slate-500">Des tarifs transparents qui évoluent avec votre entreprise.</p>
-        <div className="mt-6 inline-flex bg-slate-100 p-1 rounded-lg">
-          <button className="px-4 py-1.5 bg-white text-slate-900 shadow-sm rounded-md text-sm font-medium">Mensuel</button>
-          <button className="px-4 py-1.5 text-slate-500 hover:text-slate-900 text-sm font-medium">Annuel (-20%)</button>
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-8 px-4">
-        {plans.map((plan) => (
-          <div key={plan.name} className={`relative bg-white rounded-2xl shadow-sm border ${plan.recommended ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-slate-200'} p-8 flex flex-col`}>
-            {plan.recommended && (
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full">
-                Populaire
-              </div>
-            )}
-            <h3 className="text-lg font-bold text-slate-900">{plan.name}</h3>
-            <p className="text-sm text-slate-500 mt-1 mb-6">{plan.target}</p>
-            <div className="flex items-baseline mb-6">
-              <span className="text-4xl font-extrabold text-slate-900">{plan.price}€</span>
-              <span className="text-slate-500 ml-1">/mois</span>
-            </div>
-            
-            <ul className="space-y-4 mb-8 flex-1">
-              {plan.features.map((feat, i) => (
-                <li key={i} className="flex items-start text-sm text-slate-700">
-                  <CheckCircle size={16} className="text-green-500 mr-2 shrink-0 mt-0.5" />
-                  {feat}
-                </li>
-              ))}
-            </ul>
-
-            <Button 
-              variant={plan.recommended ? "primary" : "secondary"} 
-              className="w-full"
-            >
-              {plan.active ? "Plan Actuel" : "Choisir " + plan.name}
-            </Button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-/**
- * MAIN LAYOUT & NAVIGATION
- */
-
-const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
-  <button 
-    onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
-      ${active 
-        ? 'bg-indigo-50 text-indigo-700' 
-        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-      }`}
-  >
-    <Icon size={20} />
-    <span>{label}</span>
-    {active && <ChevronRight size={16} className="ml-auto opacity-50" />}
-  </button>
-);
-
-const App = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Vue Router Simple
-  const renderContent = () => {
-    switch(activeTab) {
-      case 'dashboard': return <Dashboard />;
-      case 'scan': return <SmartScan />;
-      case 'assistant': return <AIAssistant />;
-      case 'transactions': return <Transactions />; // MODIFIÉ ICI: Utilise le nouveau composant Transactions
-      case 'settings': return <Pricing />;
-      default: return <Dashboard />;
-    }
-  };
-
-  return (
-    <div className="flex h-screen bg-slate-50 font-sans text-slate-900">
-      {/* Sidebar Mobile Overlay */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/50 z-20 lg:hidden" onClick={() => setMobileMenuOpen(false)} />
-      )}
-
-      {/* Sidebar */}
-      <aside className={`
-        fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-slate-200 transform transition-transform duration-200 ease-in-out flex flex-col
-        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}>
-        <div className="p-6 border-b border-slate-100 flex items-center gap-3">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">F</div>
-          <span className="text-xl font-bold text-slate-900 tracking-tight">FLINANCE</span>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          <SidebarItem icon={LayoutDashboard} label="Tableau de bord" active={activeTab === 'dashboard'} onClick={() => {setActiveTab('dashboard'); setMobileMenuOpen(false);}} />
-          <SidebarItem icon={UploadCloud} label="Smart Scan" active={activeTab === 'scan'} onClick={() => {setActiveTab('scan'); setMobileMenuOpen(false);}} />
-          <SidebarItem icon={Receipt} label="Transactions" active={activeTab === 'transactions'} onClick={() => {setActiveTab('transactions'); setMobileMenuOpen(false);}} />
-          <SidebarItem icon={Bot} label="Assistant IA" active={activeTab === 'assistant'} onClick={() => {setActiveTab('assistant'); setMobileMenuOpen(false);}} />
-          <div className="pt-4 mt-4 border-t border-slate-100">
-             <div className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Compte</div>
-             <SidebarItem icon={Settings} label="Abonnement" active={activeTab === 'settings'} onClick={() => {setActiveTab('settings'); setMobileMenuOpen(false);}} />
-             <SidebarItem icon={LogOut} label="Déconnexion" active={false} onClick={() => alert('Déconnexion...')} />
-          </div>
-        </nav>
-
-        <div className="p-4 border-t border-slate-100">
-          <div className="bg-slate-50 rounded-xl p-3 flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold text-sm">
-              {MOCK_USER.avatar}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-900 truncate">{MOCK_USER.name}</p>
-              <p className="text-xs text-slate-500 truncate">{MOCK_USER.company}</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Header Mobile */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center px-4 justify-between lg:hidden shrink-0">
-          <button onClick={() => setMobileMenuOpen(true)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
-            <Menu size={24} />
-          </button>
-          <span className="font-bold text-lg">FLINANCE</span>
-          <div className="w-8"></div> {/* Spacer */}
-        </header>
-
-        {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-8">
-           <div className="max-w-7xl mx-auto">
-             {renderContent()}
-           </div>
-        </div>
-      </main>
-    </div>
-  );
-};
-
-export default App;
+               <Receipt size={48} classNa
