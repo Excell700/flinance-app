@@ -12,7 +12,6 @@ import {
   TrendingDown, 
   Search,
   Menu,
-  X as XIcon, // Renommé pour éviter conflit avec le X du pricing
   Bot,
   FileText,
   LogOut,
@@ -464,4 +463,306 @@ const SmartScan = () => {
             </div>
           ) : (
              <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
-               <Receipt size={48} classNa
+               <Receipt size={48} className="mb-4 opacity-20" />
+               <p>Aucune donnée à afficher</p>
+               <p className="text-sm">Scannez un document pour voir la magie opérer.</p>
+             </div>
+          )}
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+// 3. AI ASSISTANT (CHAT)
+const AIAssistant = () => {
+  const [messages, setMessages] = useState([
+    { id: 1, role: 'system', text: 'Bonjour ! Je suis FlinanceBot. Je peux analyser vos finances ou répondre à des questions comptables. Comment puis-je vous aider ?' }
+  ]);
+  const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSend = () => {
+    if (!input.trim()) return;
+    
+    const userMsg = { id: Date.now(), role: 'user', text: input };
+    setMessages(prev => [...prev, userMsg]);
+    setInput('');
+    setIsTyping(true);
+
+    setTimeout(() => {
+      let responseText = "Je ne suis pas sûr de comprendre. Pouvez-vous reformuler ?";
+      
+      const lowerInput = userMsg.text.toLowerCase();
+      if (lowerInput.includes('bénéfice') || lowerInput.includes('combien')) {
+        responseText = "Sur la base de vos transactions d'octobre, votre bénéfice net est de **8,219.50 €**. C'est une augmentation de 15% par rapport à septembre. Excellent travail ! 🚀";
+      } else if (lowerInput.includes('impôt') || lowerInput.includes('tva')) {
+        responseText = "Pour le régime micro-entrepreneur, vous devez déclarer votre CA à l'URSSAF avant le 30 du mois. Votre TVA collectée ce mois-ci est estimée à **1,450 €**. Voulez-vous que je prépare le formulaire ?";
+      } else if (lowerInput.includes('dépense') || lowerInput.includes('apple')) {
+        responseText = "J'ai trouvé une dépense importante chez 'Apple Store' de 1,499.00 € le 22/10. S'agit-il d'un achat de matériel amortissable sur plusieurs années ?";
+      }
+
+      setMessages(prev => [...prev, { id: Date.now() + 1, role: 'system', text: responseText }]);
+      setIsTyping(false);
+    }, 1500);
+  };
+
+  return (
+    <div className="h-[calc(100vh-140px)] flex flex-col animate-fadeIn">
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <Bot className="text-indigo-600" /> Flinance Assistant
+        </h2>
+        <p className="text-slate-500">Votre assistant virtuel disponible 24/7.</p>
+      </div>
+
+      <Card className="flex-1 flex flex-col overflow-hidden shadow-lg border-indigo-100">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+          {messages.map((msg) => (
+            <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[80%] p-3 rounded-xl text-sm leading-relaxed ${
+                msg.role === 'user' 
+                  ? 'bg-indigo-600 text-white rounded-br-none' 
+                  : 'bg-white text-slate-700 border border-slate-200 rounded-bl-none shadow-sm'
+              }`}>
+                {msg.text}
+              </div>
+            </div>
+          ))}
+          {isTyping && (
+            <div className="flex justify-start">
+              <div className="bg-white border border-slate-200 p-3 rounded-xl rounded-bl-none shadow-sm flex items-center gap-1">
+                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
+                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-75"></span>
+                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-150"></span>
+              </div>
+            </div>
+          )}
+          <div ref={chatEndRef} />
+        </div>
+
+        <div className="p-4 bg-white border-t border-slate-100">
+          <div className="flex gap-2">
+            <input 
+              type="text" 
+              className="flex-1 border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              placeholder="Posez une question sur vos finances..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            />
+            <Button onClick={handleSend} disabled={!input.trim()}>
+              <MessageSquare size={18} />
+            </Button>
+          </div>
+          <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+            {["Quel est mon bénéfice ?", "Dépenses Apple", "Déclaration TVA"].map(suggestion => (
+              <button 
+                key={suggestion}
+                onClick={() => { setInput(suggestion); }}
+                className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1 rounded-full whitespace-nowrap transition-colors"
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+// 4. TRANSACTIONS PAGE
+const Transactions = () => {
+  return (
+    <div className="space-y-6 animate-fadeIn">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Historique des transactions</h1>
+          <p className="text-slate-500">Gérez vos revenus et dépenses en détail</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="secondary"><Download size={16} /> Exporter CSV</Button>
+        </div>
+      </div>
+
+      <Card>
+        <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50/50">
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="Rechercher une transaction..." 
+              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+          <div className="flex gap-2 w-full md:w-auto">
+            <button className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">
+              <Filter size={16} /> Filtres
+            </button>
+            <select className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 focus:outline-none">
+              <option>Tout voir</option>
+              <option>Recettes</option>
+              <option>Dépenses</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm text-slate-600">
+            <thead className="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200">
+              <tr>
+                <th className="px-6 py-4">Date</th>
+                <th className="px-6 py-4">Description</th>
+                <th className="px-6 py-4">Catégorie</th>
+                <th className="px-6 py-4 text-right">Montant</th>
+                <th className="px-6 py-4 text-right">Statut</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {MOCK_TRANSACTIONS.map((tx) => (
+                <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">{tx.date}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                        tx.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-600'
+                      }`}>
+                        {tx.type === 'income' ? <TrendingUp size={14} /> : <Receipt size={14} />}
+                      </div>
+                      <span className="font-medium text-slate-900">{tx.label}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="px-2 py-1 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">
+                      {tx.category}
+                    </span>
+                  </td>
+                  <td className={`px-6 py-4 text-right font-bold ${
+                    tx.type === 'income' ? 'text-green-600' : 'text-slate-900'
+                  }`}>
+                    {tx.type === 'income' ? '+' : ''}{tx.amount.toFixed(2)} €
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <Badge status={tx.status} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        
+        <div className="p-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
+          <span>Affichage 1-{MOCK_TRANSACTIONS.length} sur {MOCK_TRANSACTIONS.length}</span>
+          <div className="flex gap-1">
+            <button className="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50" disabled>Précédent</button>
+            <button className="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50" disabled>Suivant</button>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+// --- SIDEBAR ITEM ---
+const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
+  <button 
+    onClick={onClick}
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
+      ${active 
+        ? 'bg-indigo-50 text-indigo-700' 
+        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+      }`}
+  >
+    <Icon size={20} />
+    <span>{label}</span>
+    {active && <ChevronRight size={16} className="ml-auto opacity-50" />}
+  </button>
+);
+
+// --- MAIN APP COMPONENT ---
+const App = () => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const renderContent = () => {
+    switch(activeTab) {
+      case 'dashboard': return <Dashboard />;
+      case 'scan': return <SmartScan />;
+      case 'assistant': return <AIAssistant />;
+      case 'transactions': return <Transactions />;
+      case 'settings': return <PricingPage />; // Utilise la nouvelle page de prix
+      default: return <Dashboard />;
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-slate-50 font-sans text-slate-900">
+      {/* Sidebar Mobile Overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 bg-black/50 z-20 lg:hidden" onClick={() => setMobileMenuOpen(false)} />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`
+        fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-slate-200 transform transition-transform duration-200 ease-in-out flex flex-col
+        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        <div className="p-6 border-b border-slate-100 flex items-center gap-3">
+          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">F</div>
+          <span className="text-xl font-bold text-slate-900 tracking-tight">FLINANCE</span>
+        </div>
+
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <SidebarItem icon={LayoutDashboard} label="Tableau de bord" active={activeTab === 'dashboard'} onClick={() => {setActiveTab('dashboard'); setMobileMenuOpen(false);}} />
+          <SidebarItem icon={UploadCloud} label="Smart Scan" active={activeTab === 'scan'} onClick={() => {setActiveTab('scan'); setMobileMenuOpen(false);}} />
+          <SidebarItem icon={Receipt} label="Transactions" active={activeTab === 'transactions'} onClick={() => {setActiveTab('transactions'); setMobileMenuOpen(false);}} />
+          <SidebarItem icon={Bot} label="Assistant IA" active={activeTab === 'assistant'} onClick={() => {setActiveTab('assistant'); setMobileMenuOpen(false);}} />
+          <div className="pt-4 mt-4 border-t border-slate-100">
+             <div className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Compte</div>
+             <SidebarItem icon={Settings} label="Abonnement" active={activeTab === 'settings'} onClick={() => {setActiveTab('settings'); setMobileMenuOpen(false);}} />
+             <SidebarItem icon={LogOut} label="Déconnexion" active={false} onClick={() => alert('Déconnexion...')} />
+          </div>
+        </nav>
+
+        <div className="p-4 border-t border-slate-100">
+          <div className="bg-slate-50 rounded-xl p-3 flex items-center gap-3">
+            <div className="w-10 h-10 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold text-sm">
+              {MOCK_USER.avatar}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-slate-900 truncate">{MOCK_USER.name}</p>
+              <p className="text-xs text-slate-500 truncate">{MOCK_USER.company}</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+        {/* Header Mobile */}
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center px-4 justify-between lg:hidden shrink-0">
+          <button onClick={() => setMobileMenuOpen(true)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+            <Menu size={24} />
+          </button>
+          <span className="font-bold text-lg">FLINANCE</span>
+          <div className="w-8"></div> {/* Spacer */}
+        </header>
+
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto p-4 lg:p-8">
+           <div className="max-w-7xl mx-auto">
+             {renderContent()}
+           </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default App;
