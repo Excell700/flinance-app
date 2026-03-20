@@ -1,766 +1,321 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { 
-  LayoutDashboard, 
-  Receipt, 
-  CreditCard, 
-  MessageSquare, 
-  Settings, 
-  UploadCloud, 
-  CheckCircle, 
-  AlertCircle, 
+  Play, 
+  ArrowRight, 
+  Target, 
+  Lightbulb, 
   TrendingUp, 
-  TrendingDown, 
-  Search,
-  Menu,
-  Bot,
-  FileText,
-  LogOut,
-  ChevronRight,
-  Loader2,
-  DollarSign,
-  PieChart as PieIcon,
-  Download,
-  Filter,
-  Check, 
-  X, 
-  Star, 
-  Zap, 
-  Shield 
+  Youtube, 
+  Copy, 
+  CheckCircle, 
+  BookOpen,
+  ExternalLink,
+  ShoppingCart
 } from 'lucide-react';
 
-// --- CONFIGURATION STRIPE ---
-const STRIPE_LINKS = {
-  starter: "https://buy.stripe.com/test_7sYbJ19b79JOd1Mba8bo400",
-  pro: "#", 
-  enterprise: "#"
-};
+const App = () => {
+  const [copied, setCopied] = useState(false);
+  const referralCode = "2023851404";
+  const youtubeLink = "https://www.youtube.com/@Kartelito777";
+  const brokerLink = "https://www.boursedirect.fr/fr/parrainage"; 
 
-// --- COMPOSANT PRICING (Nouvelle Version) ---
-const PricingPage = () => {
-  const plans = [
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(referralCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Base de données des livres
+  const books = [
     {
-      name: "Starter",
-      price: "29€",
-      period: "/mois",
-      description: "Parfait pour commencer vos projets personnels.",
-      features: [
-        { name: "5 Projets", included: true },
-        { name: "Support par email", included: true },
-        { name: "Analyses de base", included: true },
-        { name: "Domaine personnalisé", included: false },
-        { name: "Support 24/7", included: false },
-      ],
-      link: STRIPE_LINKS.starter,
-      buttonText: "Commencer",
-      popular: false,
-      icon: <Star className="w-6 h-6 text-blue-500" />
+      category: "💰 Investissement",
+      title: "L’Investisseur Intelligent",
+      author: "Benjamin Graham",
+      desc: "Un classique incontournable de l’investissement. Ce livre t’apprend à investir avec discipline, à éviter les erreurs émotionnelles et à penser sur le long terme.",
+      link: "https://amzn.to/4t1nG8f"
     },
     {
-      name: "Pro",
-      price: "99€",
-      period: "/mois",
-      description: "Pour les équipes et les entreprises en croissance.",
-      features: [
-        { name: "Projets illimités", included: true },
-        { name: "Support prioritaire", included: true },
-        { name: "Analyses avancées", included: true },
-        { name: "Domaine personnalisé", included: true },
-        { name: "Support 24/7", included: false },
-      ],
-      link: STRIPE_LINKS.pro,
-      buttonText: "Passer au Pro",
-      popular: true,
-      icon: <Zap className="w-6 h-6 text-yellow-500" />
+      category: "💰 Investissement",
+      title: "Le petit livre pour investir avec bon sens",
+      author: "John C. Bogle",
+      desc: "Une approche simple et efficace basée sur l’investissement passif. Idéal pour comprendre pourquoi les ETF sont puissants.",
+      link: "https://amzn.to/4lKqLaf"
     },
     {
-      name: "Entreprise",
-      price: "Sur Devis",
-      period: "",
-      description: "Solutions sur mesure pour les grandes structures.",
-      features: [
-        { name: "Tout illimité", included: true },
-        { name: "Support dédié", included: true },
-        { name: "Analyses personnalisées", included: true },
-        { name: "SLA garanti", included: true },
-        { name: "Déploiement sur site", included: true },
-      ],
-      link: STRIPE_LINKS.enterprise,
-      buttonText: "Contactez-nous",
-      popular: false,
-      icon: <Shield className="w-6 h-6 text-green-500" />
+      category: "📊 Économie",
+      title: "Économie basique",
+      author: "Thomas Sowell",
+      desc: "Un livre ultra clair pour comprendre comment fonctionne réellement l’économie, sans jargon compliqué.",
+      link: "https://amzn.to/4syGQlK"
+    },
+    {
+      category: "🚀 Débutant",
+      title: "La Bourse pour les Nuls",
+      author: "Gérard Horny",
+      desc: "Parfait pour débuter en bourse. Ce livre explique les bases simplement et t’aide à faire tes premiers investissements.",
+      link: "https://amzn.to/4bo1O0T"
+    },
+    {
+      category: "🧠 Psychologie",
+      title: "La psychologie de l’argent",
+      author: "Morgan Housel",
+      desc: "Comprendre pourquoi nos émotions influencent nos décisions financières. Un must-read pour éviter les erreurs classiques.",
+      link: "https://amzn.to/4lH9RcB"
+    },
+    {
+      category: "🪙 Crypto",
+      title: "Bitcoin et cryptomonnaies pour les Nuls",
+      author: "Daniel Drescher",
+      desc: "Un guide simple pour comprendre le fonctionnement du Bitcoin et des cryptomonnaies en partant de zéro.",
+      link: "https://amzn.to/4rN9xKG"
     }
   ];
 
   return (
-    <div className="bg-gray-50 py-6 sm:px-6 lg:px-8 font-sans animate-fadeIn">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-base font-semibold text-blue-600 tracking-wide uppercase">Tarification</h2>
-          <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            Des plans adaptés à vos besoins
-          </p>
-          <p className="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
-            Choisissez l'offre qui correspond le mieux à votre stade de développement.
-          </p>
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
+      
+      {/* NAVIGATION */}
+      <nav className="fixed w-full bg-white/80 backdrop-blur-md z-50 border-b border-slate-200/50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-slate-900 text-white rounded flex items-center justify-center font-bold text-lg">
+                F
+              </div>
+              <span className="font-bold text-xl tracking-tight">flinance</span>
+            </div>
+            <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+              <a href="#youtube" className="hover:text-slate-900 transition-colors">Vidéos</a>
+              <a href="#method" className="hover:text-slate-900 transition-colors">Méthode</a>
+              <a href="#library" className="hover:text-slate-900 transition-colors">Livres</a>
+              <a href="#broker" className="hover:text-slate-900 transition-colors">Investir</a>
+              <a href="#youtube" className="px-4 py-2 bg-slate-900 text-white rounded-full hover:bg-slate-800 transition-all shadow-sm">
+                S'abonner
+              </a>
+            </div>
+          </div>
         </div>
+      </nav>
 
-        <div className="grid gap-8 lg:grid-cols-3 lg:gap-8 items-start">
-          {plans.map((plan) => (
-            <div 
-              key={plan.name}
-              className={`relative bg-white rounded-2xl shadow-xl flex flex-col justify-between transition-transform duration-300 hover:-translate-y-2 ${plan.popular ? 'border-2 border-blue-500 ring-4 ring-blue-500/10 z-10 scale-105 lg:scale-110' : 'border border-gray-200'}`}
-            >
-              {plan.popular && (
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-bold uppercase tracking-wide shadow-md">
-                  Plus Populaire
+      {/* HERO SECTION */}
+      <section className="pt-32 pb-20 md:pt-48 md:pb-32 px-4 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[500px] bg-indigo-50/50 blur-3xl -z-10 rounded-full"></div>
+        <div className="max-w-4xl mx-auto text-center space-y-8 animate-fadeIn">
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 leading-tight">
+            Prends le contrôle <br className="hidden md:block" /> de ton <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">argent.</span>
+          </h1>
+          <p className="text-xl md:text-2xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
+            J’aide les particuliers à investir intelligemment et à construire leur liberté financière.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <a href="#youtube" className="w-full sm:w-auto px-8 py-4 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+              <Play size={20} /> Voir mes vidéos
+            </a>
+            <a href="#broker" className="w-full sm:w-auto px-8 py-4 bg-white text-slate-900 border border-slate-200 rounded-xl font-medium hover:border-slate-300 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 shadow-sm">
+              Commencer à investir <ArrowRight size={20} />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* VALUE / METHOD SECTION */}
+      <section id="method" className="py-24 bg-white border-y border-slate-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-slate-900">Une approche claire et éprouvée</h2>
+            <p className="mt-4 text-slate-500 text-lg">Fini le jargon complexe. Place à l'action.</p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-12">
+            {[
+              {
+                icon: <Target className="w-6 h-6 text-indigo-600" />,
+                title: "Investissement long terme",
+                desc: "Pas de trading risqué ni de promesses magiques. On construit un patrimoine solide, mois après mois, pour la retraite ou l'indépendance."
+              },
+              {
+                icon: <Lightbulb className="w-6 h-6 text-indigo-600" />,
+                title: "Analyse simple et efficace",
+                desc: "Apprends à lire les marchés, comprendre les ETF et sélectionner les meilleurs actifs sans y passer 3 heures par jour."
+              },
+              {
+                icon: <TrendingUp className="w-6 h-6 text-indigo-600" />,
+                title: "Éducation accessible",
+                desc: "Des vidéos pédagogiques et directes. Je traduis les concepts financiers complexes en stratégies applicables par tous."
+              }
+            ].map((item, idx) => (
+              <div key={idx} className="bg-slate-50 p-8 rounded-2xl border border-slate-100 hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 bg-white rounded-xl border border-slate-200 flex items-center justify-center mb-6 shadow-sm">
+                  {item.icon}
                 </div>
-              )}
+                <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
+                <p className="text-slate-600 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-              <div className="p-8">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
-                  <div className="p-2 bg-gray-50 rounded-lg">
-                    {plan.icon}
+      {/* YOUTUBE SECTION (Dark Mode Contrast) */}
+      <section id="youtube" className="py-24 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-indigo-900/30 to-transparent"></div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+            <div className="flex-1 space-y-6 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-indigo-300 text-sm font-medium border border-white/10">
+                <Youtube size={16} /> @Kartelito777
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+                Apprends à investir <br/>
+              </h2>
+              <p className="text-slate-400 text-lg max-w-xl mx-auto lg:mx-0">
+                Rejoins la communauté sur YouTube. Je partage une vidéo par semaine.
+              </p>
+              <a 
+                href={youtubeLink} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
+              >
+                <Youtube size={24} /> S'abonner à la chaîne
+              </a>
+            </div>
+
+            {/* Mockup YouTube Card */}
+            <div className="flex-1 w-full max-w-md">
+              <a href={youtubeLink} target="_blank" rel="noopener noreferrer" className="block group relative rounded-2xl overflow-hidden border border-white/10 bg-slate-800 p-2 shadow-2xl transition-transform hover:-translate-y-2">
+                <div className="aspect-video bg-slate-700 rounded-xl relative overflow-hidden flex items-center justify-center">
+                  <img 
+                    src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&q=80&w=1000" 
+                    alt="Trading screen placeholder" 
+                    className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center z-10 shadow-lg group-hover:scale-110 transition-transform">
+                    <Play size={32} className="text-white ml-1" />
                   </div>
+                </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-lg line-clamp-2">Stratégie ETF 2024 : Comment investir son premier salaire ?</h3>
+                  <p className="text-slate-400 text-sm mt-2">Dernière vidéo • Kartelito</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* BROKERAGE REFERRAL SECTION */}
+      <section id="broker" className="py-24 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-slate-900 mb-6">Ouvrir un compte et commencer à investir</h2>
+          <p className="text-lg text-slate-600 mb-10 max-w-2xl mx-auto">
+            Passe à l'action dès aujourd'hui. Utilise mon code de parrainage pour soutenir le projet et ouvrir ton PEA ou Compte Titres facilement.
+          </p>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-3xl p-8 md:p-12 shadow-sm max-w-2xl mx-auto relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-100 rounded-bl-full -z-0 opacity-50"></div>
+            
+            <h3 className="text-xl font-bold text-slate-900 mb-2 relative z-10">Recommandé : Bourse Direct</h3>
+            <p className="text-slate-500 mb-8 relative z-10">L'un des courtiers les moins chers en France.</p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 relative z-10">
+              <div className="flex items-center gap-4 bg-white border border-slate-300 px-6 py-4 rounded-xl shadow-sm w-full sm:w-auto">
+                <span className="text-slate-500 text-sm uppercase font-bold">Code Parrain :</span>
+                <span className="text-2xl font-mono font-bold tracking-wider text-indigo-600">{referralCode}</span>
+              </div>
+              <button 
+                onClick={copyToClipboard}
+                className="p-4 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
+              >
+                {copied ? <CheckCircle size={20} className="text-green-400" /> : <Copy size={20} />}
+                {copied ? "Copié !" : "Copier"}
+              </button>
+            </div>
+
+            <a 
+              href={brokerLink} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-md w-full sm:w-auto justify-center relative z-10"
+            >
+              Ouvrir un compte sur Bourse Direct <ExternalLink size={18} />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* LIBRARY SECTION */}
+      <section id="library" className="py-24 bg-slate-50 border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center justify-center p-3 bg-indigo-100 text-indigo-600 rounded-2xl mb-6 shadow-sm">
+              <BookOpen size={32} />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">📚 Ma Bibliothèque</h2>
+            <p className="text-slate-500 text-lg max-w-2xl mx-auto leading-relaxed">
+              Une sélection des meilleurs livres pour comprendre la finance, investir intelligemment et développer le bon mindset.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {books.map((book, idx) => (
+              <div key={idx} className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-xl transition-all flex flex-col h-full group">
+                <div className="mb-4">
+                  <span className="inline-flex items-center px-3 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-full uppercase tracking-wider">
+                    {book.category}
+                  </span>
                 </div>
                 
-                <p className="mt-4 text-sm text-gray-500 h-10">
-                  {plan.description}
+                <h3 className="text-xl font-bold text-slate-900 leading-tight mb-2 group-hover:text-indigo-600 transition-colors">
+                  {book.title}
+                </h3>
+                
+                {book.author && (
+                  <p className="text-indigo-600/80 font-medium text-sm mb-4">
+                    Par {book.author}
+                  </p>
+                )}
+                
+                <p className="text-slate-600 mb-8 flex-1 leading-relaxed text-sm md:text-base">
+                  {book.desc}
                 </p>
-
-                <div className="mt-6 flex items-baseline">
-                  <span className="text-4xl font-extrabold text-gray-900 tracking-tight">
-                    {plan.price}
-                  </span>
-                  <span className="ml-1 text-xl font-medium text-gray-500">
-                    {plan.period}
-                  </span>
-                </div>
-
-                <ul className="mt-8 space-y-4">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <div className="flex-shrink-0">
-                        {feature.included ? (
-                          <Check className="h-5 w-5 text-green-500" />
-                        ) : (
-                          <X className="h-5 w-5 text-gray-300" />
-                        )}
-                      </div>
-                      <p className={`ml-3 text-sm ${feature.included ? 'text-gray-700' : 'text-gray-400'}`}>
-                        {feature.name}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="p-8 bg-gray-50 rounded-b-2xl border-t border-gray-100">
-                <a
-                  href={plan.link}
-                  target="_blank"
+                
+                <a 
+                  href={book.link} 
+                  target="_blank" 
                   rel="noopener noreferrer"
-                  className={`block w-full text-center px-6 py-3 rounded-xl shadow-sm text-base font-medium transition-colors duration-200 
-                    ${plan.popular 
-                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                      : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-50'
-                    }`}
+                  className="inline-flex items-center justify-center gap-2 w-full py-3.5 bg-slate-900 text-white rounded-xl font-medium hover:bg-indigo-600 transition-colors mt-auto shadow-sm"
                 >
-                  {plan.buttonText}
+                  <ShoppingCart size={18} />
+                  Acheter sur Amazon
                 </a>
               </div>
-            </div>
-          ))}
-        </div>
-        
-        {/* Section FAQ ou confiance */}
-        <div className="mt-16 border-t border-gray-200 pt-10 pb-10">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 text-center">
-             {['Paiement Sécurisé', 'Annulation Facile', 'Garantie 30 jours', 'Support Expert'].map((item) => (
-               <div key={item} className="text-sm font-medium text-gray-500 flex items-center justify-center gap-2">
-                 <Check className="w-4 h-4 text-green-500" /> {item}
-               </div>
-             ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// --- MOCK DATA & UTILS ---
-const MOCK_USER = {
-  name: "Alexandre Dumas",
-  company: "TechFlow Solutions",
-  plan: "Starter",
-  avatar: "AD"
-};
-
-const MOCK_TRANSACTIONS = [
-  { id: 1, date: '2023-10-25', label: 'Abonnement AWS', amount: -124.50, type: 'expense', category: 'Infrastructure', status: 'matched' },
-  { id: 2, date: '2023-10-24', label: 'Virement Client - Studio 8', amount: 2450.00, type: 'income', category: 'Vente', status: 'pending' },
-  { id: 3, date: '2023-10-23', label: 'Uber Ride', amount: -24.90, type: 'expense', category: 'Transport', status: 'matched' },
-  { id: 4, date: '2023-10-22', label: 'Apple Store', amount: -1499.00, type: 'expense', category: 'Matériel', status: 'pending' },
-  { id: 5, date: '2023-10-20', label: 'Stripe Payout', amount: 890.00, type: 'income', category: 'Vente', status: 'matched' },
-  { id: 6, date: '2023-10-18', label: 'Restaurant Le Petit Coin', amount: -45.00, type: 'expense', category: 'Repas', status: 'processing' },
-  { id: 7, date: '2023-10-15', label: 'Adobe Creative Cloud', amount: -65.00, type: 'expense', category: 'Logiciel', status: 'matched' },
-];
-
-const RevenueChart = () => (
-  <div className="w-full h-48 flex items-end justify-between space-x-2 px-2">
-    {[35, 45, 30, 60, 55, 75, 80, 65, 50, 70, 90, 85].map((h, i) => (
-      <div key={i} className="group relative flex-1 bg-indigo-50 hover:bg-indigo-100 rounded-t-lg transition-all duration-300">
-        <div 
-          style={{ height: `${h}%` }} 
-          className="absolute bottom-0 w-full bg-indigo-500 rounded-t-lg group-hover:bg-indigo-600 transition-all"
-        ></div>
-        <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded">
-          {h * 100}€
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
-// --- COMPOSANTS UI ATOMIQUES ---
-
-const Card = ({ children, className = "" }) => (
-  <div className={`bg-white rounded-xl border border-slate-100 shadow-sm ${className}`}>
-    {children}
-  </div>
-);
-
-const Button = ({ children, variant = "primary", onClick, className = "", disabled = false }) => {
-  const baseStyle = "px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 text-sm";
-  const variants = {
-    primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg disabled:bg-indigo-300",
-    secondary: "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50",
-    ghost: "text-slate-500 hover:bg-slate-100 hover:text-slate-800",
-    danger: "bg-red-50 text-red-600 hover:bg-red-100"
-  };
-  return (
-    <button onClick={onClick} disabled={disabled} className={`${baseStyle} ${variants[variant]} ${className}`}>
-      {children}
-    </button>
-  );
-};
-
-const Badge = ({ status }) => {
-  const styles = {
-    matched: "bg-green-100 text-green-700 border-green-200",
-    pending: "bg-amber-100 text-amber-700 border-amber-200",
-    processing: "bg-blue-100 text-blue-700 border-blue-200",
-    rejected: "bg-red-100 text-red-700 border-red-200"
-  };
-  
-  const labels = {
-    matched: "Rapproché",
-    pending: "En attente",
-    processing: "Analyse IA",
-    rejected: "Rejeté"
-  };
-
-  return (
-    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status] || styles.pending}`}>
-      {labels[status] || status}
-    </span>
-  );
-};
-
-// --- MODULES FONCTIONNELS ---
-
-// 1. DASHBOARD
-const Dashboard = () => {
-  return (
-    <div className="space-y-6 animate-fadeIn">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Tableau de bord</h1>
-          <p className="text-slate-500">Aperçu de la santé financière de {MOCK_USER.company}</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="secondary"><UploadCloud size={16} /> Importer relevé</Button>
-          <Button><DollarSign size={16} /> Nouvelle facture</Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[
-          { label: "Chiffre d'affaires", val: "12,450.00 €", trend: "+12%", color: "text-indigo-600", icon: TrendingUp },
-          { label: "Dépenses", val: "4,230.50 €", trend: "+5%", color: "text-red-600", icon: TrendingDown },
-          { label: "Bénéfice Net", val: "8,219.50 €", trend: "+15%", color: "text-green-600", icon: PieIcon },
-          { label: "Trésorerie", val: "18,400.00 €", trend: "Stable", color: "text-blue-600", icon: CreditCard },
-        ].map((kpi, idx) => (
-          <Card key={idx} className="p-5 hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-slate-500 text-xs uppercase font-semibold tracking-wider">{kpi.label}</p>
-                <h3 className="text-2xl font-bold text-slate-800 mt-1">{kpi.val}</h3>
-              </div>
-              <div className={`p-2 rounded-lg bg-slate-50 ${kpi.color}`}>
-                <kpi.icon size={20} />
-              </div>
-            </div>
-            <div className="mt-4 flex items-center gap-1 text-xs font-medium">
-              <span className={kpi.color === "text-red-600" ? "text-red-600" : "text-green-600"}>
-                {kpi.trend}
-              </span>
-              <span className="text-slate-400">vs mois dernier</span>
-            </div>
-          </Card>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="font-bold text-slate-800">Flux de trésorerie</h3>
-            <select className="bg-slate-50 border border-slate-200 text-sm rounded-md px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500">
-              <option>Cette année</option>
-              <option>Ce mois</option>
-            </select>
-          </div>
-          <RevenueChart />
-          <div className="flex justify-center gap-6 mt-4 text-sm text-slate-500">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-indigo-500"></div> Recettes
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-indigo-100"></div> Prévisionnel
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-0 overflow-hidden">
-          <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-            <h3 className="font-bold text-slate-800 text-sm">Dernières opérations</h3>
-            <button className="text-indigo-600 text-xs font-medium hover:underline">Voir tout</button>
-          </div>
-          <div className="divide-y divide-slate-100">
-            {MOCK_TRANSACTIONS.slice(0, 4).map((tx) => (
-              <div key={tx.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${tx.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-600'}`}>
-                    {tx.type === 'income' ? <TrendingUp size={14} /> : <Receipt size={14} />}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-800">{tx.label}</p>
-                    <p className="text-xs text-slate-400">{tx.date}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className={`text-sm font-bold ${tx.type === 'income' ? 'text-green-600' : 'text-slate-800'}`}>
-                    {tx.type === 'income' ? '+' : ''}{tx.amount} €
-                  </p>
-                  <Badge status={tx.status} />
-                </div>
-              </div>
             ))}
           </div>
-        </Card>
-      </div>
-    </div>
-  );
-};
-
-// 2. DOCUMENT SCANNER (OCR MOCK)
-const SmartScan = () => {
-  const [isDragging, setIsDragging] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [scannedData, setScannedData] = useState(null);
-
-  const handleSimulateScan = () => {
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
-      setScannedData({
-        merchant: "Apple Store France",
-        date: "2023-11-02",
-        amount: "1,499.00",
-        tax: "249.83",
-        category: "Matériel Informatique",
-        confidence: 0.98
-      });
-    }, 2500);
-  };
-
-  return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-fadeIn">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-slate-900">Smart Scan IA</h2>
-        <p className="text-slate-500">Déposez vos factures, notre IA extrait les données automatiquement.</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div 
-          className={`border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center text-center transition-all cursor-pointer h-80
-            ${isDragging ? 'border-indigo-500 bg-indigo-50' : 'border-slate-300 hover:border-indigo-400 hover:bg-slate-50'}`}
-          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleSimulateScan(); }}
-          onClick={handleSimulateScan}
-        >
-          {isProcessing ? (
-            <div className="flex flex-col items-center animate-pulse">
-              <Loader2 size={48} className="text-indigo-600 animate-spin mb-4" />
-              <h3 className="font-bold text-slate-800">Analyse en cours...</h3>
-              <p className="text-sm text-slate-500">Extraction du fournisseur et des montants</p>
-            </div>
-          ) : (
-            <>
-              <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4">
-                <UploadCloud size={32} />
-              </div>
-              <h3 className="font-bold text-lg text-slate-800">Glisser-déposer une facture</h3>
-              <p className="text-sm text-slate-500 mt-2 mb-4">PDF, JPG ou PNG (max 5MB)</p>
-              <Button variant="secondary">Parcourir les fichiers</Button>
-            </>
-          )}
         </div>
+      </section>
 
-        <Card className="h-80 p-6 relative overflow-hidden flex flex-col">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
-          <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <FileText size={18} className="text-indigo-600" /> Résultat de l'extraction
-          </h3>
+      {/* FOOTER & DISCLAIMER */}
+      <footer className="bg-slate-900 py-12 border-t border-slate-800">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
+          <div className="flex items-center gap-2 mb-8 text-white">
+            <div className="w-8 h-8 bg-white text-slate-900 rounded flex items-center justify-center font-bold text-lg">
+              F
+            </div>
+            <span className="font-bold text-xl tracking-tight">flinance</span>
+          </div>
           
-          {scannedData ? (
-            <div className="space-y-4 flex-1 overflow-y-auto">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2 text-sm text-green-700 mb-4">
-                <CheckCircle size={16} /> Extraction réussie (Confiance: {(scannedData.confidence * 100).toFixed(0)}%)
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <span className="text-xs text-slate-400 uppercase font-semibold">Fournisseur</span>
-                  <div className="font-medium text-slate-900">{scannedData.merchant}</div>
-                </div>
-                <div className="space-y-1">
-                  <span className="text-xs text-slate-400 uppercase font-semibold">Date</span>
-                  <div className="font-medium text-slate-900">{scannedData.date}</div>
-                </div>
-                <div className="space-y-1">
-                  <span className="text-xs text-slate-400 uppercase font-semibold">Montant TTC</span>
-                  <div className="font-bold text-indigo-600 text-lg">{scannedData.amount} €</div>
-                </div>
-                 <div className="space-y-1">
-                  <span className="text-xs text-slate-400 uppercase font-semibold">TVA (Est.)</span>
-                  <div className="font-medium text-slate-900">{scannedData.tax} €</div>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100">
-                <div className="space-y-1 mb-4">
-                   <span className="text-xs text-slate-400 uppercase font-semibold">Catégorie suggérée</span>
-                   <div className="flex items-center gap-2">
-                     <span className="bg-slate-100 px-2 py-1 rounded text-sm text-slate-700">{scannedData.category}</span>
-                   </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button className="w-full">Valider et Enregistrer</Button>
-                </div>
-              </div>
-            </div>
-          ) : (
-             <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
-               <Receipt size={48} className="mb-4 opacity-20" />
-               <p>Aucune donnée à afficher</p>
-               <p className="text-sm">Scannez un document pour voir la magie opérer.</p>
-             </div>
-          )}
-        </Card>
-      </div>
-    </div>
-  );
-};
-
-// 3. AI ASSISTANT (CHAT)
-const AIAssistant = () => {
-  const [messages, setMessages] = useState([
-    { id: 1, role: 'system', text: 'Bonjour ! Je suis FlinanceBot. Je peux analyser vos finances ou répondre à des questions comptables. Comment puis-je vous aider ?' }
-  ]);
-  const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const chatEndRef = useRef(null);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const handleSend = () => {
-    if (!input.trim()) return;
-    
-    const userMsg = { id: Date.now(), role: 'user', text: input };
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
-    setIsTyping(true);
-
-    setTimeout(() => {
-      let responseText = "Je ne suis pas sûr de comprendre. Pouvez-vous reformuler ?";
-      
-      const lowerInput = userMsg.text.toLowerCase();
-      if (lowerInput.includes('bénéfice') || lowerInput.includes('combien')) {
-        responseText = "Sur la base de vos transactions d'octobre, votre bénéfice net est de **8,219.50 €**. C'est une augmentation de 15% par rapport à septembre. Excellent travail ! 🚀";
-      } else if (lowerInput.includes('impôt') || lowerInput.includes('tva')) {
-        responseText = "Pour le régime micro-entrepreneur, vous devez déclarer votre CA à l'URSSAF avant le 30 du mois. Votre TVA collectée ce mois-ci est estimée à **1,450 €**. Voulez-vous que je prépare le formulaire ?";
-      } else if (lowerInput.includes('dépense') || lowerInput.includes('apple')) {
-        responseText = "J'ai trouvé une dépense importante chez 'Apple Store' de 1,499.00 € le 22/10. S'agit-il d'un achat de matériel amortissable sur plusieurs années ?";
-      }
-
-      setMessages(prev => [...prev, { id: Date.now() + 1, role: 'system', text: responseText }]);
-      setIsTyping(false);
-    }, 1500);
-  };
-
-  return (
-    <div className="h-[calc(100vh-140px)] flex flex-col animate-fadeIn">
-      <div className="mb-4">
-        <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <Bot className="text-indigo-600" /> Flinance Assistant
-        </h2>
-        <p className="text-slate-500">Votre assistant virtuel disponible 24/7.</p>
-      </div>
-
-      <Card className="flex-1 flex flex-col overflow-hidden shadow-lg border-indigo-100">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[80%] p-3 rounded-xl text-sm leading-relaxed ${
-                msg.role === 'user' 
-                  ? 'bg-indigo-600 text-white rounded-br-none' 
-                  : 'bg-white text-slate-700 border border-slate-200 rounded-bl-none shadow-sm'
-              }`}>
-                {msg.text}
-              </div>
-            </div>
-          ))}
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="bg-white border border-slate-200 p-3 rounded-xl rounded-bl-none shadow-sm flex items-center gap-1">
-                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
-                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-75"></span>
-                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-150"></span>
-              </div>
-            </div>
-          )}
-          <div ref={chatEndRef} />
-        </div>
-
-        <div className="p-4 bg-white border-t border-slate-100">
-          <div className="flex gap-2">
-            <input 
-              type="text" 
-              className="flex-1 border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-              placeholder="Posez une question sur vos finances..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            />
-            <Button onClick={handleSend} disabled={!input.trim()}>
-              <MessageSquare size={18} />
-            </Button>
+          <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700/50 max-w-3xl mb-8">
+            <p className="text-slate-400 text-sm leading-relaxed">
+              <strong>Avertissement Légal :</strong> Ce contenu est purement éducatif et ne constitue en aucun cas un conseil financier, fiscal ou juridique personnalisé. L'investissement en bourse comporte des risques de perte en capital. Faites toujours vos propres recherches avant d'investir. Certains liens présents sur cette page sont des liens affiliés.
+            </p>
           </div>
-          <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
-            {["Quel est mon bénéfice ?", "Dépenses Apple", "Déclaration TVA"].map(suggestion => (
-              <button 
-                key={suggestion}
-                onClick={() => { setInput(suggestion); }}
-                className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1 rounded-full whitespace-nowrap transition-colors"
-              >
-                {suggestion}
-              </button>
-            ))}
-          </div>
+
+          <p className="text-slate-500 text-sm">
+            © {new Date().getFullYear()} Flinance. Tous droits réservés.
+          </p>
         </div>
-      </Card>
-    </div>
-  );
-};
-
-// 4. TRANSACTIONS PAGE
-const Transactions = () => {
-  return (
-    <div className="space-y-6 animate-fadeIn">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Historique des transactions</h1>
-          <p className="text-slate-500">Gérez vos revenus et dépenses en détail</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="secondary"><Download size={16} /> Exporter CSV</Button>
-        </div>
-      </div>
-
-      <Card>
-        <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50/50">
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="Rechercher une transaction..." 
-              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-          <div className="flex gap-2 w-full md:w-auto">
-            <button className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">
-              <Filter size={16} /> Filtres
-            </button>
-            <select className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 focus:outline-none">
-              <option>Tout voir</option>
-              <option>Recettes</option>
-              <option>Dépenses</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-600">
-            <thead className="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-4">Date</th>
-                <th className="px-6 py-4">Description</th>
-                <th className="px-6 py-4">Catégorie</th>
-                <th className="px-6 py-4 text-right">Montant</th>
-                <th className="px-6 py-4 text-right">Statut</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {MOCK_TRANSACTIONS.map((tx) => (
-                <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">{tx.date}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                        tx.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-600'
-                      }`}>
-                        {tx.type === 'income' ? <TrendingUp size={14} /> : <Receipt size={14} />}
-                      </div>
-                      <span className="font-medium text-slate-900">{tx.label}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="px-2 py-1 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">
-                      {tx.category}
-                    </span>
-                  </td>
-                  <td className={`px-6 py-4 text-right font-bold ${
-                    tx.type === 'income' ? 'text-green-600' : 'text-slate-900'
-                  }`}>
-                    {tx.type === 'income' ? '+' : ''}{tx.amount.toFixed(2)} €
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <Badge status={tx.status} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        <div className="p-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
-          <span>Affichage 1-{MOCK_TRANSACTIONS.length} sur {MOCK_TRANSACTIONS.length}</span>
-          <div className="flex gap-1">
-            <button className="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50" disabled>Précédent</button>
-            <button className="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50" disabled>Suivant</button>
-          </div>
-        </div>
-      </Card>
-    </div>
-  );
-};
-
-// --- SIDEBAR ITEM ---
-const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
-  <button 
-    onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
-      ${active 
-        ? 'bg-indigo-50 text-indigo-700' 
-        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-      }`}
-  >
-    <Icon size={20} />
-    <span>{label}</span>
-    {active && <ChevronRight size={16} className="ml-auto opacity-50" />}
-  </button>
-);
-
-// --- MAIN APP COMPONENT ---
-const App = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const renderContent = () => {
-    switch(activeTab) {
-      case 'dashboard': return <Dashboard />;
-      case 'scan': return <SmartScan />;
-      case 'assistant': return <AIAssistant />;
-      case 'transactions': return <Transactions />;
-      case 'settings': return <PricingPage />; // Utilise la nouvelle page de prix
-      default: return <Dashboard />;
-    }
-  };
-
-  return (
-    <div className="flex h-screen bg-slate-50 font-sans text-slate-900">
-      {/* Sidebar Mobile Overlay */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/50 z-20 lg:hidden" onClick={() => setMobileMenuOpen(false)} />
-      )}
-
-      {/* Sidebar */}
-      <aside className={`
-        fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-slate-200 transform transition-transform duration-200 ease-in-out flex flex-col
-        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}>
-        <div className="p-6 border-b border-slate-100 flex items-center gap-3">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">F</div>
-          <span className="text-xl font-bold text-slate-900 tracking-tight">FLINANCE</span>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          <SidebarItem icon={LayoutDashboard} label="Tableau de bord" active={activeTab === 'dashboard'} onClick={() => {setActiveTab('dashboard'); setMobileMenuOpen(false);}} />
-          <SidebarItem icon={UploadCloud} label="Smart Scan" active={activeTab === 'scan'} onClick={() => {setActiveTab('scan'); setMobileMenuOpen(false);}} />
-          <SidebarItem icon={Receipt} label="Transactions" active={activeTab === 'transactions'} onClick={() => {setActiveTab('transactions'); setMobileMenuOpen(false);}} />
-          <SidebarItem icon={Bot} label="Assistant IA" active={activeTab === 'assistant'} onClick={() => {setActiveTab('assistant'); setMobileMenuOpen(false);}} />
-          <div className="pt-4 mt-4 border-t border-slate-100">
-             <div className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Compte</div>
-             <SidebarItem icon={Settings} label="Abonnement" active={activeTab === 'settings'} onClick={() => {setActiveTab('settings'); setMobileMenuOpen(false);}} />
-             <SidebarItem icon={LogOut} label="Déconnexion" active={false} onClick={() => alert('Déconnexion...')} />
-          </div>
-        </nav>
-
-        <div className="p-4 border-t border-slate-100">
-          <div className="bg-slate-50 rounded-xl p-3 flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold text-sm">
-              {MOCK_USER.avatar}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-900 truncate">{MOCK_USER.name}</p>
-              <p className="text-xs text-slate-500 truncate">{MOCK_USER.company}</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Header Mobile */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center px-4 justify-between lg:hidden shrink-0">
-          <button onClick={() => setMobileMenuOpen(true)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
-            <Menu size={24} />
-          </button>
-          <span className="font-bold text-lg">FLINANCE</span>
-          <div className="w-8"></div> {/* Spacer */}
-        </header>
-
-        {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-8">
-           <div className="max-w-7xl mx-auto">
-             {renderContent()}
-           </div>
-        </div>
-      </main>
+      </footer>
     </div>
   );
 };
